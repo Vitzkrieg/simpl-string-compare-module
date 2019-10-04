@@ -1,0 +1,108 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:Dustin Vietzke
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+#CATEGORY "10" // Serial
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#HELP_BEGIN
+- Compare two strings
+- Digital representation of the CompareStrings function
+- https://help.crestron.com/simpl_plus/#Language_Constructs_&_Functions/String_Parsing_&_Manipulation_Functions/CompareStrings.htm
+#HELP_END
+
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT Enable, Ignore_Case;
+STRING_INPUT First_String$[254], Second_String$[254];
+
+
+DIGITAL_OUTPUT Equal, First_Before, Second_Before;
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+
+Function CheckStrings()
+{
+    
+	STRING First$[254];
+	STRING Second$[254];
+    SIGNED_INTEGER compresult;
+
+
+	Equal = 0;
+	First_Before = 0;
+	Second_Before = 0;
+
+	if (Enable = 0){
+		return;
+	}
+
+	IF (Ignore_Case = 1) {
+    	First$ = LOWER(First_String$);
+    	Second$ = LOWER(Second_String$);
+	} ELSE {
+    	First$ = First_String$;
+    	Second$ = Second_String$;
+	}
+ 
+    compresult = CompareStrings(First$, Second$);
+
+	if (compresult = 0) {
+		Equal = 1;
+	}
+	if (compresult < 0) {
+		First_Before = 1;
+	}
+	if (compresult > 0) {
+		Second_Before = 1;
+	}
+}
+ 
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+
+CHANGE Enable, Ignore_Case, First_String$, Second_String$
+{
+    CheckStrings();
+}
+
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{	
+	Equal = 0;
+	First_Before = 0;
+	Second_Before = 0;
+
+    WaitForInitializationComplete();
+}
+
+
